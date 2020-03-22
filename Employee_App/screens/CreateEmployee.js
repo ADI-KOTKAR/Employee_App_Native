@@ -106,7 +106,7 @@ const CreateEmployee = ()=>{
 
 const theme  = {
     colors:{
-        primary:"blue"
+        primary:"#006aff"
     }
 }
 const styles = StyleSheet.create({
