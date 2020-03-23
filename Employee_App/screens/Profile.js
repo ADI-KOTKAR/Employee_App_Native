@@ -1,22 +1,41 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Linking, Platform} from 'react-native';
+import { StyleSheet, Text, View, Image, Linking, Platform, Alert} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {Title, Card, Button} from 'react-native-paper';
 import {MaterialIcons} from '@expo/vector-icons'
 
-const openDial=()=>{
-    if(Platform.OS === "android"){
-        Linking.openURL("tel:9833296555")
-    }
-    else{
-        Linking.openURL("telprompt:9833851779")
-    }
-}
+
 
 const Profile = (props)=>{
 
-    const {id,name,picture,phone,email,salary,position} = props.route.params.item
-
+    const {_id,name,picture,phone,email,salary,position} = props.route.params.item
+    console.log(_id, name)
+    const openDial=()=>{
+        if(Platform.OS === "android"){
+            Linking.openURL(`tel:${phone}`)
+        }
+        else{
+            Linking.openURL(`telprompt:${phone}`)
+        }
+    }
+    const deleteEmployee = ()=>{
+        fetch("https://09993bd4.ngrok.io/delete-data",{
+            method:"POST",
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id:_id
+            })
+        }).then(res=>res.json())
+        .then(deletedEmp=>{
+            Alert.alert(`${deletedEmp.name}'s profile is deleted.`)
+            console.log(`${deletedEmp.name} deleted`)
+            props.navigation.navigate("Home")
+        }).catch(err=>{
+            Alert.alert("Something went wrong..")
+        })
+    }
     return(
         <View style={styles.root}>
             <LinearGradient 
@@ -35,7 +54,7 @@ const Profile = (props)=>{
                 <Text style={styles.mytext}>{position}</Text>
             </View>
             <Card style={styles.mycard} onPress={()=>{
-                Linking.openURL("mailto:adityakotkar75@gmail.com")
+                Linking.openURL(`mailto:${email}`)
             }}>
                 <View style={styles.cardcontent}>
                     <MaterialIcons name="email" size={32} color="#006aff" />
@@ -61,14 +80,18 @@ const Profile = (props)=>{
                         theme={theme} 
                         icon="account-edit" 
                         mode="contained" 
-                        onPress={()=> console.log("pressed")}>
+                        onPress={()=> {
+                            props.navigation.navigate("Create",
+                            {_id,name,picture,phone,email,salary,position}
+                            )
+                        }}>
                             Edit
                 </Button>
                 <Button  
                         theme={theme} 
                         icon="delete" 
                         mode="contained" 
-                        onPress={()=> console.log("pressed")}>
+                        onPress={()=> deleteEmployee()}>
                             Fire Employee
                 </Button>
             </View>
